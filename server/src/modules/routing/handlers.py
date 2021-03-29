@@ -5,6 +5,7 @@ from flask import Blueprint, request, redirect
 from flask_login import current_user
 
 from modules.links.helpers import get_shortlink
+from modules.users.helpers import get_or_create_user
 from shared_helpers import config
 from shared_helpers.events import enqueue_event
 
@@ -52,6 +53,11 @@ def get_go_link(path):
   provided_shortpath = parse.unquote(path.strip('/'))
   shortpath_parts = provided_shortpath.split('/', 1)
   shortpath = '/'.join([shortpath_parts[0].lower()] + shortpath_parts[1:])
+
+  DEFAULT_USER = 'jon@trot.to'
+  global current_user
+  if not current_user.is_authenticated:
+    current_user = get_or_create_user(DEFAULT_USER, None)
 
   if not getattr(current_user, 'email', None):
     if request.args.get('s') == 'crx' and request.args.get('sc'):
